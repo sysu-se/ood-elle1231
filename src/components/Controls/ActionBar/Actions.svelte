@@ -10,6 +10,9 @@
 
 	$: hintsAvailable = $hints > 0;
 
+	// HW2: 管理当前的探索状态
+	let isExploring = false;
+
 	function handleHint() {
 		if (hintsAvailable) {
 			if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
@@ -19,17 +22,33 @@
 			userGrid.applyHint($cursor);
 		}
 	}
+
+	// HW2: 探索模式触发函数
+	function toggleExplore() {
+		userGrid.enterExplore();
+		isExploring = true;
+	}
+
+	function commitExplore() {
+		userGrid.commitExplore();
+		isExploring = false;
+	}
+
+	function discardExplore() {
+		userGrid.discardExplore();
+		isExploring = false;
+	}
 </script>
 
 <div class="action-buttons space-x-3">
 
-	<button class="btn btn-round" disabled={$gamePaused} title="Undo">
+	<button class="btn btn-round" disabled={$gamePaused} on:click={userGrid.undo} title="Undo">
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
 		</svg>
 	</button>
 
-	<button class="btn btn-round" disabled={$gamePaused} title="Redo">
+	<button class="btn btn-round" disabled={$gamePaused} on:click={userGrid.redo} title="Redo">
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 90 00-8 8v2M21 10l-6 6m6-6l-6-6" />
 		</svg>
@@ -53,12 +72,33 @@
 		<span class="badge tracking-tighter" class:badge-primary={$notes}>{$notes ? 'ON' : 'OFF'}</span>
 	</button>
 
+	<div class="flex items-center space-x-3 border-l-2 border-gray-200 pl-3">
+		{#if !isExploring}
+			<button class="btn btn-round text-blue-500" disabled={$gamePaused} on:click={toggleExplore} title="Start Explore">
+				<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+				</svg>
+			</button>
+		{:else}
+			<button class="btn btn-round bg-green-50 text-green-600 border border-green-300" on:click={commitExplore} title="Commit Explore">
+				<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+				</svg>
+			</button>
+			<button class="btn btn-round bg-red-50 text-red-600 border border-red-300" on:click={discardExplore} title="Discard Explore">
+				<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+				</svg>
+			</button>
+		{/if}
+	</div>
+
 </div>
 
 
 <style>
 	.action-buttons {
-		@apply flex flex-wrap justify-evenly self-end;
+		@apply flex flex-wrap justify-evenly self-end items-center;
 	}
 
 	.btn-badge {
