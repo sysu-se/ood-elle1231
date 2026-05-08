@@ -25,7 +25,8 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # 修改这里：使用 install 并加上 legacy-peer-deps 标志来忽略版本冲突
+        run: npm install --legacy-peer-deps
 
       - name: Contract
         id: contract
